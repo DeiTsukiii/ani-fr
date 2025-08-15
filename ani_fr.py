@@ -10,7 +10,15 @@ from platformdirs import user_downloads_dir
 
 BASE_URL = "https://anime-sama.fr"
 version = 1.0
-last_version = "https://raw.githubusercontent.com/DeiTsukiii/ani-fr/refs/heads/main/version.txt"
+last_version_url = "https://raw.githubusercontent.com/DeiTsukiii/ani-fr/refs/heads/main/version.txt"
+
+def check_updates():
+    try:
+        content = requests.get(last_version_url).text
+        return float(content) > version
+    except Exception as e:
+        print(f"Erreur lors de la requête : {str(e)}")
+        return None
 
 def get_catalogue(query=""): 
     try:
@@ -273,6 +281,9 @@ def handle_actions(video_url, episodes, current_ep, player, anime_name, season, 
             break
 
 def main():
+    if not check_updates():
+        print("Votre version de ani-fr n'est pas a jour.")
+        return
     query = input("🔎 Nom de l'animé : " + "\033[94;1m")
     print("\033[0m", end="")
 
