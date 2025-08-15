@@ -10,8 +10,33 @@ from platformdirs import user_downloads_dir
 import argparse
 
 BASE_URL = "https://anime-sama.fr"
-version = 1.0
+version = 1.1
 last_version_url = "https://raw.githubusercontent.com/DeiTsukiii/ani-fr/refs/heads/main/ani_fr.py"
+anime_sama_headers = {
+    "host": "anime-sama.fr",
+    "connection": "keep-alive",
+    "sec-ch-ua": "\"Not A(Brand\";v=\"8\", \"Chromium\";v=\"132\", \"Google Chrome\";v=\"132\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "upgrade-insecure-requests": "1",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+    "sec-fetch-site": "same-origin",
+    "sec-fetch-mode": "navigate",
+    "sec-fetch-user": "?1",
+    "sec-fetch-dest": "document",
+    "referer": "https://anime-sama.fr/catalogue/",
+    "accept-language": "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7"
+}
+
+sibnet_headers = {
+    "user-agent": "Mozilla/5.0 (X11; Linux x86_64; rv:134.0) Gecko/20100101 Firefox/134.0",
+    "accept-language": "en-US,en;q=0.5",
+    "connection": "keep-alive",
+    "range": "bytes=0-",
+    "accept-encoding": "identity",
+    "referer": "https://video.sibnet.ru/",
+}
 
 def check_updates():
     try:
@@ -30,24 +55,8 @@ def check_updates():
 def get_catalogue(query=""): 
     try:
         url = "https://anime-sama.fr/catalogue/"
-        headers = {
-            "host": "anime-sama.fr",
-            "connection": "keep-alive",
-            "sec-ch-ua": "\"Not A(Brand\";v=\"8\", \"Chromium\";v=\"132\", \"Google Chrome\";v=\"132\"",
-            "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-platform": "\"Windows\"",
-            "upgrade-insecure-requests": "1",
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",
-            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-            "sec-fetch-site": "same-origin",
-            "sec-fetch-mode": "navigate",
-            "sec-fetch-user": "?1",
-            "sec-fetch-dest": "document",
-            "referer": "https://anime-sama.fr/catalogue/",
-            "accept-language": "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7"
-        }
         querystring = {"search": query, "type[]": "Anime", "langue[]": "VF"}
-        response = requests.get(url, headers=headers, params=querystring)
+        response = requests.get(url, headers=anime_sama_headers, params=querystring)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
         result = []
@@ -65,11 +74,7 @@ def get_catalogue(query=""):
         return [], []
     
 def get_seasons(url):
-    html_content = requests.get(url, headers={
-        "user-agent": "Mozilla/5.0 (X11; Linux x86_64; rv:134.0) Gecko/20100101 Firefox/134.0",
-        "accept-language": "en-US,en;q=0.5",
-        "connection": "keep-alive"
-    }).text
+    html_content = requests.get(url, headers=anime_sama_headers).text
     seasons = []
     pattern = r'panneauAnime\("([^"]+)",\s*"([^"]+)"\)'
     matches = re.findall(pattern, html_content)
@@ -84,20 +89,8 @@ def get_seasons(url):
     return seasons
 
 def get_langues(url):
-    headers = {
-        "host": "anime-sama.fr",
-        "user-agent": "Mozilla/5.0 (X11; Linux x86_64; rv:134.0) Gecko/134.0",
-        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "accept-language": "en-US,en;q=0.5",
-        "connection": "keep-alive",
-        "upgrade-insecure-requests": "1",
-        "sec-fetch-dest": "document",
-        "sec-fetch-mode": "navigate",
-        "sec-fetch-site": "same-origin",
-        "sec-fetch-user": "?1"
-    }
     try:
-        content = requests.get(url, headers=headers).text
+        content = requests.get(url, headers=anime_sama_headers).text
         soup = BeautifulSoup(content, "html.parser")
         langues = []
         for a in soup.find_all("a", href=True):
@@ -114,20 +107,8 @@ def get_langues(url):
         return None
 
 def get_episode_list(url):
-    headers = {
-        "host": "anime-sama.fr",
-        "user-agent": "Mozilla/5.0 (X11; Linux x86_64; rv:134.0) Gecko/134.0",
-        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "accept-language": "en-US,en;q=0.5",
-        "connection": "keep-alive",
-        "upgrade-insecure-requests": "1",
-        "sec-fetch-dest": "document",
-        "sec-fetch-mode": "navigate",
-        "sec-fetch-site": "same-origin",
-        "sec-fetch-user": "?1"
-    }
     try:
-        content = requests.get(url, headers=headers).text
+        content = requests.get(url, headers=anime_sama_headers).text
         pattern = r'episodes\.js\?filever=(\d+)'
         match = re.search(pattern, content)
         if match:
@@ -156,26 +137,14 @@ def get_anime_episode(complete_url, filever):
 def get_video_url(video_id):
     try:
         url = "https://video.sibnet.ru/shell.php"
-        headers = {
-            "user-agent": "Mozilla/5.0 (X11; Linux x86_64; rv:134.0) Gecko/20100101 Firefox/134.0",
-            "referer": "https://anime-sama.fr/",
-        }
-        response = requests.get(url, headers=headers, params={"videoid": video_id})
+        response = requests.get(url, headers=anime_sama_headers, params={"videoid": video_id})
         response.raise_for_status()
         html_content = response.text
         match = re.search(r'player\.src\(\[\{src: "/v/([^/]+)/', html_content)
         if match:
             video_hash = match.group(1)
             url_sibnet = f"https://video.sibnet.ru/v/{video_hash}/{video_id}.mp4"
-            headers_sibnet = {
-                "user-agent": "Mozilla/5.0 (X11; Linux x86_64; rv:134.0) Gecko/20100101 Firefox/134.0",
-                "accept-language": "en-US,en;q=0.5",
-                "connection": "keep-alive",
-                "range": "bytes=0-",
-                "accept-encoding": "identity",
-                "referer": "https://video.sibnet.ru/",
-            }
-            response_sibnet = requests.get(url_sibnet, headers=headers_sibnet, allow_redirects=False)
+            response_sibnet = requests.get(url_sibnet, headers=sibnet_headers, allow_redirects=False)
             if response_sibnet.status_code == 302:
                 return response_sibnet.headers['Location']
             else:
@@ -187,21 +156,9 @@ def get_video_url(video_id):
         print(f"Erreur lors de la récupération de l'URL vidéo : {e}")
         return None
 
-
-import requests
-import sys
-import time
-
 def download_episode(url, filename="episode.mp4"):
     try:
-        response = requests.get(url, headers={
-            "user-agent": "Mozilla/5.0 (X11; Linux x86_64; rv:134.0) Gecko/20100101 Firefox/134.0",
-            "accept-language": "en-US,en;q=0.5",
-            "connection": "keep-alive",
-            "range": "bytes=0-",
-            "accept-encoding": "identity",
-            "referer": "https://video.sibnet.ru/",
-        }, stream=True)
+        response = requests.get(url, headers=sibnet_headers, stream=True)
         response.raise_for_status()
         
         total_size = int(response.headers.get('content-length', 0))
@@ -322,7 +279,7 @@ def main():
     ]
     chosen_anime = prompt(animes_prompt)
     anime_name = chosen_anime['choix']
-    anime_url = next(r['url'] for r in catalogue if r['name'] == anime_name)
+    anime_url = next(r['url'] for r in catalogue if r['name'] == anime_name).strip()
 
     seasons = get_seasons(anime_url)
     if not seasons:

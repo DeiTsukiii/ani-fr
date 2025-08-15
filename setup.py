@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="ani-fr",
-    version="1.0",
+    version="1.1",
     py_modules=["ani_fr"],
     entry_points={
         "console_scripts": [
