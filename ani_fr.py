@@ -9,7 +9,7 @@ import time
 from platformdirs import user_downloads_dir
 
 BASE_URL = "https://anime-sama.fr"
-version = 1.0
+version = 1.1
 last_version_url = "https://raw.githubusercontent.com/DeiTsukiii/ani-fr/refs/heads/main/ani_fr.py"
 
 def check_updates():
@@ -287,6 +287,7 @@ def handle_actions(video_url, episodes, current_ep, player, anime_name, season, 
             break
 
 def main():
+    print('salut')
     if check_updates():
         print("Votre version de ani-fr n'est pas a jour.")
         print("git clone https://github.com/DeiTsukiii/ani-fr.git")
