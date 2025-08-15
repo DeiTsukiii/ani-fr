@@ -282,7 +282,7 @@ def handle_actions(video_url, episodes, current_ep, player, anime_name, season, 
 
 def main():
     print('salut')
-    if not check_updates():
+    if check_updates():
         print("Votre version de ani-fr n'est pas a jour.")
         return
     query = input("🔎 Nom de l'animé : " + "\033[94;1m")
