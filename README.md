@@ -33,10 +33,53 @@ ani-fr
 
 ## Dépendances
 
-- Python 3
+* **Python 3**
+  Vérifie si Python 3 est installé :
 
-- requests
+  ```bash
+  python3 --version
+  ```
 
-- InquirerPy
+  Si ce n’est pas le cas :
 
-- mpv
+  * **Ubuntu / Debian** :
+
+    ```bash
+    sudo apt update
+    sudo apt install python3 python3-pip -y
+    ```
+  * **Fedora / Red Hat** :
+
+    ```bash
+    sudo dnf install python3 python3-pip -y
+    ```
+  * **Arch Linux** :
+
+    ```bash
+    sudo pacman -S python python-pip
+    ```
+
+* **mpv**
+  Vérifie si mpv est installé :
+
+  ```bash
+  mpv --version
+  ```
+
+  Si ce n’est pas le cas :
+
+  * **Ubuntu / Debian** :
+
+    ```bash
+    sudo apt install mpv -y
+    ```
+  * **Fedora / Red Hat** :
+
+    ```bash
+    sudo dnf install mpv -y
+    ```
+  * **Arch Linux** :
+
+    ```bash
+    sudo pacman -S mpv
+    ```
