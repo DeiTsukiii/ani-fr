@@ -7,9 +7,10 @@ import re
 import sys
 import time
 from platformdirs import user_downloads_dir
+import argparse
 
 BASE_URL = "https://anime-sama.fr"
-version = 1.1
+version = 1.0
 last_version_url = "https://raw.githubusercontent.com/DeiTsukiii/ani-fr/refs/heads/main/ani_fr.py"
 
 def check_updates():
@@ -287,7 +288,14 @@ def handle_actions(video_url, episodes, current_ep, player, anime_name, season, 
             break
 
 def main():
-    print('salut')
+    parser = argparse.ArgumentParser(description="Téléchargeur d'animes depuis anime-sama.fr")
+    parser.add_argument("-v", "--version", action="store_true", help="Afficher la version du script")
+    args = parser.parse_args()
+
+    if args.version:
+        print(f"ani-fr version {version}")
+        return
+    
     if check_updates():
         print("Votre version de ani-fr n'est pas a jour.")
         print("git clone https://github.com/DeiTsukiii/ani-fr.git")

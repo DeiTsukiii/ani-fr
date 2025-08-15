@@ -33,53 +33,52 @@ ani-fr
 
 ## Dépendances
 
-* **Python 3**
-  Vérifie si Python 3 est installé :
+* git
+* Python 3
+* mpv
+
+**Installation:**
+
+* **Ubuntu / Debian** :
 
   ```bash
-  python3 --version
+  sudo apt update
+  sudo apt install python3 python3-pip mpv git -y
   ```
-
-  Si ce n’est pas le cas :
-
-  * **Ubuntu / Debian** :
-
-    ```bash
-    sudo apt update
-    sudo apt install python3 python3-pip -y
-    ```
-  * **Fedora / Red Hat** :
-
-    ```bash
-    sudo dnf install python3 python3-pip -y
-    ```
-  * **Arch Linux** :
-
-    ```bash
-    sudo pacman -S python python-pip
-    ```
-
-* **mpv**
-  Vérifie si mpv est installé :
+* **Fedora / Red Hat** :
 
   ```bash
-  mpv --version
+  sudo dnf install python3 python3-pip mpv git -y
+  ```
+* **Arch Linux** :
+
+  ```bash
+  sudo pacman -S python python-pip mpv git
   ```
 
-  Si ce n’est pas le cas :
+---
 
-  * **Ubuntu / Debian** :
+## Mise à jour
 
-    ```bash
-    sudo apt install mpv -y
-    ```
-  * **Fedora / Red Hat** :
+Lorsque votre version d'ani-fr n'est pas à jour, vous pouvez mettre à jour facilement depuis Git :
 
-    ```bash
-    sudo dnf install mpv -y
-    ```
-  * **Arch Linux** :
+* **Si vous possédez encore le dossier du projet:**
+  ```bash
+  cd /chemin/vers/ani-fr
+  git pull origin main
+  pip install --user -r requirements.txt
+  pip install --user . --upgrade
+  ```
 
-    ```bash
-    sudo pacman -S mpv
-    ```
+* **Sinon, si vous avez supprimé le dossier:**
+  ```bash
+  git clone https://github.com/DeiTsukiii/ani-fr.git
+  cd ani-fr
+  pip install --user -r requirements.txt
+  pip install --user . --upgrade
+  ```
+
+Vous pouvez voir votre version de ani-fr en faisant:
+```bash
+ani-fr --version
+```
