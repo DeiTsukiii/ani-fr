@@ -9,13 +9,19 @@ import time
 from platformdirs import user_downloads_dir
 
 BASE_URL = "https://anime-sama.fr"
-version = 1.1
-last_version_url = "https://raw.githubusercontent.com/DeiTsukiii/ani-fr/refs/heads/main/version.txt"
+version = 1.0
+last_version_url = "https://raw.githubusercontent.com/DeiTsukiii/ani-fr/refs/heads/main/ani_fr.py"
 
 def check_updates():
     try:
         content = requests.get(last_version_url).text
-        return float(content) > version
+        match = re.search(r'^version\s*=\s*([0-9.]+)', content, re.MULTILINE)
+        if match:
+            last_version = float(match.group(1))
+            return last_version > version
+        else:
+            print("Impossible de trouver la version sur GitHub")
+            return None
     except Exception as e:
         print(f"Erreur lors de la requête : {str(e)}")
         return None
@@ -281,9 +287,12 @@ def handle_actions(video_url, episodes, current_ep, player, anime_name, season, 
             break
 
 def main():
-    print('salut')
     if check_updates():
         print("Votre version de ani-fr n'est pas a jour.")
+        print("git clone https://github.com/DeiTsukiii/ani-fr.git")
+        print("cd ani-fr")
+        print("pip install --user -r requirements.txt")
+        print("pip install --user . --upgrade")
         return
     query = input("🔎 Nom de l'animé : " + "\033[94;1m")
     print("\033[0m", end="")
