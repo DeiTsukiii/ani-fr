@@ -9,6 +9,8 @@ import time
 from platformdirs import user_downloads_dir
 
 BASE_URL = "https://anime-sama.fr"
+version = 1.0
+last_version = "https://raw.githubusercontent.com/DeiTsukiii/ani-fr/refs/heads/main/version.txt"
 
 def get_catalogue(query=""): 
     try:
