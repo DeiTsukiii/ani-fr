@@ -1,2 +1,4 @@
 requests
 InquirerPy
+beautifulsoup4
+platformdirs
