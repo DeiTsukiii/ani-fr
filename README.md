@@ -11,7 +11,7 @@ Clone le dépôt puis installe avec pip :
 ```bash
 git clone https://github.com/DeiTsukiii/ani-fr.git
 cd ani-fr
-pip install --user
+pip install --user .
 ```
 
 Le script sera alors accessible avec la commande :
