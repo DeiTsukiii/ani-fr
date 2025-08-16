@@ -78,6 +78,12 @@ Lorsque votre version d'ani-fr n'est pas à jour, vous pouvez mettre à jour fac
   pip install --user . --upgrade
   ```
 
+Si vous ne souhaitez pas la mettre a jour et utiliser ani-fr dans une version obsolète vous pouvez utiliser la commande :
+
+```bash
+ani-fr --force
+```
+
 Vous pouvez voir votre version de ani-fr en faisant:
 ```bash
 ani-fr --version

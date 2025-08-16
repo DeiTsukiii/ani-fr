@@ -10,7 +10,7 @@ from platformdirs import user_downloads_dir
 import argparse
 
 BASE_URL = "https://anime-sama.fr"
-version = 1.1
+version = 1.2
 last_version_url = "https://raw.githubusercontent.com/DeiTsukiii/ani-fr/refs/heads/main/ani_fr.py"
 anime_sama_headers = {
     "host": "anime-sama.fr",
@@ -52,7 +52,7 @@ def check_updates():
         print(f"Erreur lors de la requête : {str(e)}")
         return None
 
-def get_catalogue(query=""): 
+def search_anime(query=""): 
     try:
         url = "https://anime-sama.fr/catalogue/"
         querystring = {"search": query, "type[]": "Anime", "langue[]": "VF"}
@@ -106,7 +106,7 @@ def get_langues(url):
         print(f"Erreur lors de la requête : {str(e)}")
         return None
 
-def get_episode_list(url):
+def get_filever(url):
     try:
         content = requests.get(url, headers=anime_sama_headers).text
         pattern = r'episodes\.js\?filever=(\d+)'
@@ -201,39 +201,48 @@ def handle_actions(video_url, episodes, current_ep, player, anime_name, season, 
                 "type": "list",
                 "name": "choix",
                 "message": "Sélectionne une action :",
-                "choices": ["⏭️ Épisode suivant", "⏮️ Épisode précédent", "⬇️ Télécharger l'épisode", "❌ Quitter"]
+                "choices": []
             }
         ]
-        chosen_action = prompt(action_prompt)
 
-        actions = ['next', 'last', 'download', 'quit']
-        choice = actions[action_prompt[0]['choices'].index(chosen_action['choix'])]
+        actions_map = {}
+
+        if current_index + 1 < len(ep_nums):
+            action_prompt[0]["choices"].append("⏭️  Épisode suivant")
+            actions_map["⏭️  Épisode suivant"] = "next"
+
+        if current_index > 0:
+            action_prompt[0]["choices"].append("⏮️  Épisode précédent")
+            actions_map["⏮️  Épisode précédent"] = "last"
+
+        action_prompt[0]["choices"].append("⬇️  Télécharger l'épisode")
+        actions_map["⬇️  Télécharger l'épisode"] = "download"
+
+        action_prompt[0]["choices"].append("❌ Quitter")
+        actions_map["❌ Quitter"] = "quit"
+
+        chosen_action = prompt(action_prompt)
+        choice = actions_map[chosen_action["choix"]]
         
         if choice == "next":
-            if current_index + 1 < len(ep_nums):
-                player.terminate()
-                current_index += 1
-                next_ep_id = episodes[ep_nums[current_index]]
-                next_video_url = get_video_url(next_ep_id)
-                if next_video_url.startswith('//'):
-                    next_video_url = 'https:' + next_video_url
-                player = subprocess.Popen(['mpv', next_video_url, '--fullscreen'], stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                print(f"Lecture de l'épisode {ep_nums[current_index]}")
-            else:
-                print("C'est le dernier épisode.")
+            player.terminate()
+            current_index += 1
+            next_ep_id = episodes[ep_nums[current_index]]
+            next_video_url = get_video_url(next_ep_id)
+            if next_video_url.startswith('//'):
+                next_video_url = 'https:' + next_video_url
+            player = subprocess.Popen(['mpv', next_video_url, '--fullscreen'], stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            print(f"Lecture de l'épisode {ep_nums[current_index]}")
         
         elif choice == "last":
-            if current_index > 0:
-                player.terminate()
-                current_index -= 1
-                prev_ep_id = episodes[ep_nums[current_index]]
-                prev_video_url = get_video_url(prev_ep_id)
-                if prev_video_url.startswith('//'):
-                    prev_video_url = 'https:' + prev_video_url
-                player = subprocess.Popen(['mpv', prev_video_url, '--fullscreen'], stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                print(f"Lecture de l'épisode {ep_nums[current_index]}")
-            else:
-                print("C'est le premier épisode.")
+            player.terminate()
+            current_index -= 1
+            prev_ep_id = episodes[ep_nums[current_index]]
+            prev_video_url = get_video_url(prev_ep_id)
+            if prev_video_url.startswith('//'):
+                prev_video_url = 'https:' + prev_video_url
+            player = subprocess.Popen(['mpv', prev_video_url, '--fullscreen'], stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            print(f"Lecture de l'épisode {ep_nums[current_index]}")
         
         elif choice == "download":
             print("Téléchargement en cours...")
@@ -245,27 +254,32 @@ def handle_actions(video_url, episodes, current_ep, player, anime_name, season, 
             break
 
 def main():
-    parser = argparse.ArgumentParser(description="Téléchargeur d'animes depuis anime-sama.fr")
+    parser = argparse.ArgumentParser(description="Téléchargeur d'anime en Français.")
     parser.add_argument("-v", "--version", action="store_true", help="Afficher la version du script")
+    parser.add_argument("-f", "--force", action="store_true", help="Force le lancement d'une version obsolète")
     args = parser.parse_args()
 
     if args.version:
         print(f"ani-fr version {version}")
         return
     
-    if check_updates():
+    if check_updates() and not args.force:
         print("Votre version de ani-fr n'est pas a jour.")
+        print("\nSi vous souhaitez la mettre a jour:")
         print("git clone https://github.com/DeiTsukiii/ani-fr.git")
         print("cd ani-fr")
         print("pip install --user -r requirements.txt")
         print("pip install --user . --upgrade")
+        print("\nSinon vous pouvez faire:")
+        print("ani-fr --force")
         return
-    query = input("🔎 Nom de l'animé : " + "\033[94;1m")
+    
+    query = input("🔎 Nom de l'animé : " + "\033[38;2;97;175;239m")
     print("\033[0m", end="")
 
-    catalogue = get_catalogue(query.strip())
+    search = search_anime(query.strip())
 
-    if not catalogue:
+    if not search:
         print("Aucun résultat trouvé.")
         return
     
@@ -274,12 +288,12 @@ def main():
             "type": "list",
             "name": "choix",
             "message": "Sélectionne un anime :",
-            "choices": [r['name'] for r in catalogue]
+            "choices": [r['name'] for r in search]
         }
     ]
     chosen_anime = prompt(animes_prompt)
     anime_name = chosen_anime['choix']
-    anime_url = next(r['url'] for r in catalogue if r['name'] == anime_name).strip()
+    anime_url = next(r['url'] for r in search if r['name'] == anime_name).strip()
 
     seasons = get_seasons(anime_url)
     if not seasons:
@@ -316,7 +330,7 @@ def main():
     chosen_langue = prompt(langues_prompt)
     complete_url = complete_url.replace('vostfr', chosen_langue['choix'])
     
-    filever = get_episode_list(complete_url)
+    filever = get_filever(complete_url)
     episodes = get_anime_episode(complete_url, filever)
 
     if not episodes:
